@@ -3,6 +3,7 @@
  *  Taloselectronics
  *  soporte@taloselectronics.com Rafael Lozano Rolón
 */
+#include <SoftwareSerial.h>
 
 #define In1 2
 #define In2 4
@@ -22,22 +23,90 @@
 #define S4 A3
 #define S5 12
 
+SoftwareSerial Bluetooth(B_TX, B_RX);
 
-int Menu;
 //Movimientos basicos
 void Motores_init();
 void Motores_mv(int velocidad_izquierda, int velocidad_derecha);
+char Leer_BT();
+
+char Estado;
 
 void setup()
 {
   Serial.begin(9600);
+  Bluetooth.begin(9600);
   Motores_init();
   
 }
 
 void loop() 
 {
-    
+    Modo_Bluetooth();
+}
+char Leer_BT()
+{
+    if (Bluetooth.available() > 0)
+    {
+        Estado = Bluetooth.read();
+        Serial.println(Estado);
+    }
+    return Estado;
+}
+
+void Modo_Bluetooth()
+{
+    int Velocidad_Max = 255;
+    int Velocidad_Med = 150;
+    Estado = Leer_BT();
+    if (Estado == '1')
+    {
+        //Arriba_Izquierda
+        Motores_mv(Velocidad_Med, Velocidad_Max);
+    }
+    if (Estado == '2')
+    {
+        //Derecho
+        Motores_mv(Velocidad_Max, Velocidad_Max);
+    }
+    if (Estado == '3')
+    {
+        //Arriba_Derecha
+        Motores_mv(Velocidad_Max, Velocidad_Med);
+    }
+    if (Estado == '4')
+    {
+        //Girar a la izquierda
+        Motores_mv(-Velocidad_Max, Velocidad_Max);
+    }
+    if (Estado == '5')
+    {
+        //Serial.println("Logo talos");
+    }
+    if (Estado == '6')
+    {
+        //Girar a la derecha
+        Motores_mv(Velocidad_Max, -Velocidad_Max);
+    }
+    if (Estado == '7')
+    {
+        //Abajo Izquierda
+        Motores_mv(-Velocidad_Med, -Velocidad_Max);
+    }
+    if (Estado == '8')
+    {
+        //Reversa
+        Motores_mv(-Velocidad_Max, -Velocidad_Max);
+    }
+    if (Estado == '9')
+    {
+        //Abajo Derecha
+        Motores_mv(-Velocidad_Max, -Velocidad_Med);
+    }
+    if (Estado == 'w')
+    {
+        Motores_mv(0,0);
+    }
 }
 
 void Motores_mv(int velocidad_izquierda, int velocidad_derecha)
